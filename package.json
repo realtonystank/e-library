@@ -7,7 +7,9 @@
     "dev": "nodemon server.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "format:check": "prettier . --check",
-    "format:fix": "prettier . --write"
+    "format:fix": "prettier . --write",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "keywords": [
     "rest",
@@ -18,8 +20,10 @@
   "license": "ISC",
   "devDependencies": {
     "@eslint/js": "^9.11.1",
+    "@types/eslint__js": "^8.42.3",
     "@types/node": "^22.6.1",
     "eslint": "^9.11.1",
+    "eslint-config-prettier": "^9.1.0",
     "globals": "^15.9.0",
     "nodemon": "^3.1.7",
     "prettier": "3.3.3",
