@@ -1,1 +1,6 @@
-console.log("Welcome to ebook api");
+function login(username: string): boolean {
+  console.log(username);
+  return true;
+}
+
+login("codersgyan");
