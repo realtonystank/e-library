@@ -24,7 +24,9 @@
     "@types/config": "^3.3.5",
     "@types/eslint__js": "^8.42.3",
     "@types/express": "^5.0.0",
+    "@types/http-errors": "^2.0.4",
     "@types/node": "^22.6.1",
+    "@types/uuid": "^10.0.0",
     "@types/winston": "^2.4.4",
     "eslint": "^9.11.1",
     "eslint-config-prettier": "^9.1.0",
@@ -46,7 +48,9 @@
   "dependencies": {
     "config": "^3.3.12",
     "express": "^4.21.0",
+    "http-errors": "^2.0.0",
     "js-yaml": "^4.1.0",
+    "uuid": "^10.0.0",
     "winston": "^3.14.2"
   }
 }
