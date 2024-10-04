@@ -23,7 +23,12 @@ export default tseslint.config(
     },
   },
   {
-    ignores: ["**/node_modules/**", "eslint.config.mjs", "/config/**"],
+    ignores: [
+      "**/node_modules/**",
+      "eslint.config.mjs",
+      "/config/**",
+      "**/*.js",
+    ],
   },
   {
     rules: {},
