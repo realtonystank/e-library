@@ -1,5 +1,6 @@
 import request from "supertest";
-import server from "./src/server";
+import app from "./src/app";
+import { App } from "supertest/types";
 
 describe("App", () => {
   it("should work", () => {
@@ -7,7 +8,7 @@ describe("App", () => {
     expect(result).toBe(100);
   });
   it("should return 200 status", async () => {
-    const response = await request(() => server)
+    const response = await request(app as unknown as App)
       .get("/")
       .send();
 
