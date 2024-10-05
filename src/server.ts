@@ -3,11 +3,9 @@ import app from "./app";
 import { Config } from "./config/config";
 
 const startServer = () => {
-  const PORT: string = Config.port;
+  const PORT: string = Config.PORT;
   try {
-    return app.listen(PORT, () =>
-      logger.info(`Server running on PORT:${PORT}`),
-    );
+    app.listen(PORT, () => logger.info(`Server running on PORT:${PORT}`));
   } catch (err) {
     if (err instanceof Error) {
       logger.error(`Something went wrong - ${err}`);

@@ -1,11 +1,13 @@
 import config from "config";
 
 type configuration = {
-  port: string;
+  PORT: string;
+  NODE_ENV: string;
 };
 
 const _config: configuration = {
-  port: config.get("server.port") || "3000",
+  PORT: config.get("server.port") || "3000",
+  NODE_ENV: process.env.NODE_ENV as string,
 };
 
 export const Config = Object.freeze(_config);
