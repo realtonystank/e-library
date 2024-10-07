@@ -33,4 +33,13 @@ describe("App", () => {
     expect(users.length).toBe(1);
     expect(users[0].name).toBe("Priyansh");
   });
+  it("should return 201 status", async () => {
+    const response = await request(app as unknown as App)
+      .post("/api/users/register")
+      .send();
+
+    console.log("response is - ", response.body);
+
+    expect(response.statusCode).toBe(201);
+  });
 });
