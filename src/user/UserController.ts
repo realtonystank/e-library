@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import { validationResult } from "express-validator";
 import createHttpError from "http-errors";
 import { AppDataSource } from "../config/data-source";
@@ -7,20 +7,7 @@ import bcrypt from "bcrypt";
 import logger from "../../config/logger";
 import { sign } from "jsonwebtoken";
 import { Config } from "../config/config";
-
-interface createUser {
-  name: string;
-  email: string;
-  password: string;
-}
-
-interface createUserRequest extends Request {
-  body: createUser;
-}
-
-interface loginUserRequest extends Request {
-  body: Omit<createUser, "name">;
-}
+import { AuthRequest, createUserRequest, loginUserRequest } from "../types";
 
 export default class UserController {
   async create(req: createUserRequest, res: Response, next: NextFunction) {
@@ -107,5 +94,12 @@ export default class UserController {
     });
 
     res.status(200).json({ id: userInDb.id });
+  }
+  async self(req: AuthRequest, res: Response) {
+    const userId = Number(req.auth.sub);
+    const userRepository = AppDataSource.getRepository(User);
+    const userInDb = await userRepository.findOneBy({ id: userId });
+
+    res.status(200).json({ ...userInDb, password: "" });
   }
 }
