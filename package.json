@@ -25,11 +25,13 @@
   "license": "ISC",
   "devDependencies": {
     "@eslint/js": "^9.11.1",
+    "@types/bcrypt": "^5.0.2",
     "@types/config": "^3.3.5",
     "@types/eslint__js": "^8.42.3",
     "@types/express": "^5.0.0",
     "@types/http-errors": "^2.0.4",
     "@types/jest": "^29.5.13",
+    "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^16.11.10",
     "@types/supertest": "^6.0.2",
     "@types/uuid": "^10.0.0",
@@ -55,12 +57,14 @@
     ]
   },
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "config": "^3.3.12",
     "cross-env": "^7.0.3",
     "express": "^4.21.0",
     "express-validator": "^7.2.0",
     "http-errors": "^2.0.0",
     "js-yaml": "^4.1.0",
+    "jsonwebtoken": "^9.0.2",
     "reflect-metadata": "^0.1.13",
     "sqlite3": "^5.0.2",
     "typeorm": "0.3.20",
