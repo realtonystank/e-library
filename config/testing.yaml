@@ -1,0 +1,3 @@
+server:
+  accesstokensecret: "378d2e5b6bd43521eb4a80ae0176c00edf61808b2f94ee47172dcb0c5453b827"
+  refreshtokensecret: "a418500ca9aa17fb273198bbb4a0bc43bd50a7166855cff0a12ce3424239104d"

@@ -5,6 +5,7 @@ import { DataSource } from "typeorm";
 import { AppDataSource } from "./src/config/data-source";
 import { truncateTables } from "./src/tests/utils";
 import { User } from "./src/entity/User";
+import { hash } from "bcrypt";
 
 describe("App", () => {
   let connection: DataSource;
@@ -17,29 +18,61 @@ describe("App", () => {
   afterAll(async () => {
     if (connection) await connection.destroy();
   });
-
-  it("should work", () => {
-    const result = 100;
-    expect(result).toBe(100);
-  });
-  it("should return 200 status", async () => {
-    const response = await request(app as unknown as App)
-      .get("/")
-      .send();
-
-    expect(response.statusCode).toBe(200);
-    const userRepository = connection.getRepository(User);
-    const users = await userRepository.find();
-    expect(users.length).toBe(1);
-    expect(users[0].name).toBe("Priyansh");
-  });
-  it("should return 201 status", async () => {
+  it("should return 201 status when user registers", async () => {
+    const dummyUser = {
+      name: "Test User",
+      email: "testuser@gmail.com",
+      password: "secret12345!",
+    };
     const response = await request(app as unknown as App)
       .post("/api/users/register")
-      .send();
-
-    console.log("response is - ", response.body);
+      .send(dummyUser);
 
     expect(response.statusCode).toBe(201);
+
+    const userRepository = connection.getRepository(User);
+
+    const userInDb = await userRepository.find();
+    expect(userInDb).not.toBeNull();
+    expect(userInDb).toHaveLength(1);
+    expect(userInDb[0].name).toBe("Test User");
+  });
+  it("should return 200 status when user logins", async () => {
+    const userRepository = connection.getRepository(User);
+
+    const dummyUser = {
+      name: "Test User",
+      email: "testuser@gmail.com",
+      password: "secret12345!",
+    };
+
+    const hashedPassword = await hash(dummyUser.password, 10);
+    dummyUser.password = hashedPassword;
+
+    await userRepository.save(dummyUser);
+
+    const payload = {
+      email: "testuser@gmail.com",
+      password: "secret12345!",
+    };
+
+    const response = await request(app as unknown as App)
+      .post("/api/users/login")
+      .send(payload);
+
+    expect(response.statusCode).toBe(200);
+    expect(response.headers["set-cookie"]).toBeDefined();
+
+    // Extract cookies from the response
+    const cookies = response.headers["set-cookie"];
+    const cookieArray = Array.isArray(cookies) ? cookies : [cookies];
+
+    // Check if the specific cookie key exists
+    const hasAccessTokenCookie = cookieArray.some((cookie: string) =>
+      cookie.startsWith("AccessToken="),
+    );
+
+    // Assert that the cookie is present
+    expect(hasAccessTokenCookie).toBe(true);
   });
 });
