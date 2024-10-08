@@ -8,6 +8,7 @@ import logger from "../../config/logger";
 import { sign } from "jsonwebtoken";
 import { Config } from "../config/config";
 import { AuthRequest, createUserRequest, loginUserRequest } from "../types";
+import { Refresh_Tokens } from "../entity/Refresh_Tokens";
 
 export default class UserController {
   async create(req: createUserRequest, res: Response, next: NextFunction) {
@@ -55,6 +56,7 @@ export default class UserController {
     const { email, password } = req.body;
 
     const userRepository = AppDataSource.getRepository(User);
+    const refreshTokenRepository = AppDataSource.getRepository(Refresh_Tokens);
 
     const userInDb = await userRepository.findOneBy({ email: email });
 
@@ -79,6 +81,14 @@ export default class UserController {
       Config.REFRESH_TOKEN_SECRET,
       { expiresIn: "7d" },
     );
+
+    const MS_IN_SEVEN_DAYS = 1000 * 60 * 60 * 24 * 7;
+
+    await refreshTokenRepository.save({
+      token: refreshToken,
+      expiresAt: new Date(Date.now() + MS_IN_SEVEN_DAYS),
+      user: userInDb,
+    });
 
     res.cookie("AccessToken", accessToken, {
       httpOnly: true,
