@@ -5,8 +5,8 @@ import { Refresh_Tokens } from "../entity/Refresh_Tokens";
 
 export const AppDataSource = new DataSource({
   type: "sqlite",
-  database: "database.sqlite",
-  synchronize: false,
+  database: process.env.NODE_ENV === "testing" ? ":memory:" : "database.sqlite",
+  synchronize: process.env.NODE_ENV === "testing" ? true : false,
   logging: false,
   entities: [User, Refresh_Tokens],
   migrations: ["src/migration/*.ts"],

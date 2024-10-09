@@ -1,7 +1,7 @@
 import request from "supertest";
 import app from "./src/app";
 import { App } from "supertest/types";
-import { DataSource } from "typeorm";
+import { DataSource, Repository } from "typeorm";
 import { AppDataSource } from "./src/config/data-source";
 import { truncateTables } from "./src/tests/utils";
 import { User } from "./src/entity/User";
@@ -11,8 +11,10 @@ import { Config } from "./src/config/config";
 
 describe("App", () => {
   let connection: DataSource;
+  let userRepository: Repository<User>;
   beforeAll(async () => {
     connection = await AppDataSource.initialize();
+    userRepository = connection.getRepository(User);
   });
   beforeEach(async () => {
     await truncateTables(connection);
@@ -32,16 +34,12 @@ describe("App", () => {
 
     expect(response.statusCode).toBe(201);
 
-    const userRepository = connection.getRepository(User);
-
     const userInDb = await userRepository.find();
     expect(userInDb).not.toBeNull();
     expect(userInDb).toHaveLength(1);
     expect(userInDb[0].name).toBe("Test User");
   });
   it("should return 200 status when user logins", async () => {
-    const userRepository = connection.getRepository(User);
-
     const dummyUser = {
       name: "Test User",
       email: "testuser@gmail.com",
@@ -84,7 +82,6 @@ describe("App", () => {
       password: "secret123!",
     };
 
-    const userRepository = connection.getRepository(User);
     const userInDb = await userRepository.save(dummyUser);
 
     const accessToken = sign({ sub: userInDb.id }, Config.ACCESS_TOKEN_SECRET, {
