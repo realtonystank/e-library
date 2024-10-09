@@ -6,6 +6,8 @@ import { AppDataSource } from "./src/config/data-source";
 import { truncateTables } from "./src/tests/utils";
 import { User } from "./src/entity/User";
 import { hash } from "bcrypt";
+import { sign } from "jsonwebtoken";
+import { Config } from "./src/config/config";
 
 describe("App", () => {
   let connection: DataSource;
@@ -74,5 +76,26 @@ describe("App", () => {
 
     // Assert that the cookie is present
     expect(hasAccessTokenCookie).toBe(true);
+  });
+  it("should return 200 status when user hits self route", async () => {
+    const dummyUser = {
+      name: "Test User",
+      email: "testuser@gmail.com",
+      password: "secret123!",
+    };
+
+    const userRepository = connection.getRepository(User);
+    const userInDb = await userRepository.save(dummyUser);
+
+    const accessToken = sign({ sub: userInDb.id }, Config.ACCESS_TOKEN_SECRET, {
+      expiresIn: "1h",
+    });
+
+    const response = await request(app as unknown as App)
+      .post("/api/users/self")
+      .set("Cookie", [`AccessToken=${accessToken}`])
+      .send();
+
+    expect(response.statusCode).toBe(200);
   });
 });
