@@ -18,3 +18,11 @@ export interface AuthRequest extends Request {
     sub: string;
   };
 }
+
+export interface BookCreateRequest extends Request {
+  body: {
+    title: string;
+    author: string;
+    genre: string;
+  };
+}
