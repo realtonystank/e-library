@@ -18,6 +18,8 @@ export class Book {
   @Column()
   coverImage!: string;
   @Column()
+  file!: string;
+  @Column()
   genre!: string;
   @ManyToMany(() => User)
   @JoinTable()
