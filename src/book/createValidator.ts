@@ -18,10 +18,22 @@ export default checkSchema({
       errorMessage: "Genre is required",
     },
   },
+  author: {
+    exists: {
+      errorMessage: "Author is required",
+    },
+    custom: {
+      options: (value: string) => {
+        const valueArr = value.split(",");
+        return valueArr.every((userId) => !isNaN(Number(userId)));
+      },
+      errorMessage:
+        "Author array must contain string to number convertible author id",
+    },
+  },
   coverImage: {
     custom: {
       options: (value, { req }) => {
-        console.log("Checking coverImage");
         const _req = req as CreateBookRequest;
         if (!_req.files || !_req.files.coverImage) {
           throw new Error("Cover image is required");
