@@ -22,14 +22,6 @@ export default checkSchema({
     exists: {
       errorMessage: "Author is required",
     },
-    custom: {
-      options: (value: string) => {
-        const valueArr = value.split(",");
-        return valueArr.every((userId) => !isNaN(Number(userId)));
-      },
-      errorMessage:
-        "Author array must contain string to number convertible author id",
-    },
   },
   coverImage: {
     custom: {

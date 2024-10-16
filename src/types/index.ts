@@ -24,5 +24,9 @@ export interface BookCreateRequest extends Request {
     title: string;
     author: string;
     genre: string;
+    createdBy: string;
+  };
+  auth: {
+    sub: string;
   };
 }

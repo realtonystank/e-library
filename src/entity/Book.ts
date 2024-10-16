@@ -2,14 +2,14 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinTable,
-  ManyToMany,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
 import { User } from "./User";
 
-@Entity()
+@Entity({ name: "Book" })
 export class Book {
   @PrimaryGeneratedColumn()
   id!: number;
@@ -21,9 +21,11 @@ export class Book {
   file!: string;
   @Column()
   genre!: string;
-  @ManyToMany(() => User)
-  @JoinTable()
-  author!: User[];
+  @Column()
+  author!: string;
+  @ManyToOne(() => User)
+  @JoinColumn()
+  createdBy!: User;
   @CreateDateColumn({ type: "datetime" })
   createdAt!: Date;
   @UpdateDateColumn({ type: "datetime" })
