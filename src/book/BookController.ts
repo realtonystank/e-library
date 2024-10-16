@@ -1,8 +1,8 @@
-import { NextFunction, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { CloudinaryStorage } from "../common/services/CloudinaryStorage";
 import { validationResult } from "express-validator";
 import createHttpError from "http-errors";
-import { In, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { Book } from "../entity/Book";
 import { BookCreateRequest } from "../types";
 import { User } from "../entity/User";
@@ -23,15 +23,17 @@ export default class BookController {
       return;
     }
 
+    const userId = req.auth.sub;
+    const createdBy = await this.userRepository.findOne({
+      where: { id: Number(userId) },
+    });
+    if (!createdBy) {
+      next(createHttpError(404, "User associated with access token not found"));
+      return;
+    }
+
     const { bookFileUrl, coverImageUrl } = await this.storageService.upload({
       files: req.files!,
-    });
-
-    const authorId = req.body.author.split(",").map((id) => Number(id));
-    const author = await this.userRepository.find({
-      where: {
-        id: In(authorId),
-      },
     });
 
     await this.bookRepository.save({
@@ -39,7 +41,8 @@ export default class BookController {
       file: bookFileUrl,
       title: req.body.title,
       genre: req.body.genre,
-      author: author,
+      author: req.body.author,
+      createdBy,
     });
 
     const files = req.files as {
@@ -62,5 +65,21 @@ export default class BookController {
     );
 
     res.status(201).json({ message: "success" });
+  }
+  async getAll(req: Request, res: Response) {
+    const { page, perPage } = req.query;
+    let skip = 0;
+    let take = 10;
+    if (!isNaN(Number(page)) && !isNaN(Number(perPage))) {
+      skip = (Number(page) - 1) * Number(perPage);
+      take = Number(perPage);
+    }
+    const allBooks = await this.bookRepository.find({
+      select: ["id", "title", "coverImage", "file", "genre", "author"],
+      skip,
+      take,
+    });
+
+    res.status(200).json({ data: allBooks });
   }
 }

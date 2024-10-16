@@ -1,4 +1,9 @@
-import express, { NextFunction, Request, Response } from "express";
+import express, {
+  NextFunction,
+  Request,
+  RequestHandler,
+  Response,
+} from "express";
 import multer from "multer";
 import path from "path";
 import { asyncWrapper } from "../common/utils/wrapper";
@@ -8,6 +13,8 @@ import createValidator from "./createValidator";
 import { AppDataSource } from "../config/data-source";
 import { Book } from "../entity/Book";
 import { User } from "../entity/User";
+import authenticate from "../common/middlewares/authenticate";
+import { BookCreateRequest } from "../types";
 const bookRouter = express.Router();
 const cloudinaryStorage = new CloudinaryStorage();
 const bookRepository = AppDataSource.getRepository(Book);
@@ -25,6 +32,7 @@ const upload = multer({
 
 bookRouter.post(
   "/create",
+  authenticate as RequestHandler,
   upload.fields([
     {
       name: "coverImage",
@@ -37,7 +45,13 @@ bookRouter.post(
   ]),
   createValidator,
   asyncWrapper((req: Request, res: Response, next: NextFunction) =>
-    bookController.create(req, res, next),
+    bookController.create(req as BookCreateRequest, res, next),
+  ),
+);
+bookRouter.get(
+  "/",
+  asyncWrapper((req: Request, res: Response) =>
+    bookController.getAll(req, res),
   ),
 );
 
