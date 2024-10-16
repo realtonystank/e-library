@@ -70,16 +70,26 @@ export default class BookController {
     const { page, perPage } = req.query;
     let skip = 0;
     let take = 10;
+    const info = {
+      currentPage: 1,
+      recordsOnPage: 1,
+      totalPage: 1,
+      totalRecords: 1,
+    };
     if (!isNaN(Number(page)) && !isNaN(Number(perPage))) {
       skip = (Number(page) - 1) * Number(perPage);
       take = Number(perPage);
+      info.currentPage = Number(page);
     }
-    const allBooks = await this.bookRepository.find({
+    const books = await this.bookRepository.find({
       select: ["id", "title", "coverImage", "file", "genre", "author"],
       skip,
       take,
     });
-
-    res.status(200).json({ data: allBooks });
+    const totalRecords = await this.bookRepository.count();
+    info.recordsOnPage = books.length;
+    info.totalRecords = totalRecords;
+    info.totalPage = Math.ceil(info.totalRecords / take);
+    res.status(200).json({ data: books, info });
   }
 }
