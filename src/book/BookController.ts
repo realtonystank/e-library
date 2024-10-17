@@ -4,11 +4,12 @@ import { validationResult } from "express-validator";
 import createHttpError from "http-errors";
 import { Repository } from "typeorm";
 import { Book } from "../entity/Book";
-import { BookCreateRequest } from "../types";
+import { BookCreateRequest, DeleteBookRequest } from "../types";
 import { User } from "../entity/User";
 
 import { unlink } from "fs/promises";
 import path from "path";
+import { CloudinaryOptions } from "../types/storage";
 
 export default class BookController {
   constructor(
@@ -91,5 +92,77 @@ export default class BookController {
     info.totalRecords = totalRecords;
     info.totalPage = Math.ceil(info.totalRecords / take);
     res.status(200).json({ data: books, info });
+  }
+  async deleteById(req: DeleteBookRequest, res: Response, next: NextFunction) {
+    const userId = req.auth.sub;
+    const userInDb = await this.userRepository.findOneBy({
+      id: Number(userId),
+    });
+
+    if (!userInDb) {
+      next(
+        createHttpError(404, "User associated with access token not found."),
+      );
+      return;
+    }
+
+    const { bookId } = req.params;
+    if (isNaN(Number(bookId))) {
+      next(createHttpError(400, "Incorrect Id format"));
+      return;
+    }
+    const bookInDb = await this.bookRepository.findOne({
+      where: {
+        id: Number(bookId),
+      },
+      relations: {
+        createdBy: true,
+      },
+    });
+    if (!bookInDb) {
+      next(createHttpError(404, "Book not found."));
+      return;
+    }
+
+    if (bookInDb.createdBy.id !== Number(userId)) {
+      next(
+        createHttpError(401, "You are not authorized to delete this resource."),
+      );
+      return;
+    }
+
+    const bookFileUrl = bookInDb.file;
+    if (bookFileUrl) {
+      const bookFileUrlPartsArr = bookFileUrl.split("/");
+      if (
+        bookFileUrlPartsArr !== undefined &&
+        bookFileUrlPartsArr.length >= 2
+      ) {
+        const bookFilePublicId =
+          bookFileUrlPartsArr.at(-2)! + "/" + bookFileUrlPartsArr.at(-1);
+
+        const bookFileOptions: CloudinaryOptions = {
+          resource_type: "raw",
+        };
+
+        await this.storageService.delete(bookFilePublicId, bookFileOptions);
+      }
+    }
+
+    const coverUrl = bookInDb.coverImage;
+    if (coverUrl) {
+      const coverUrlPartsArr = coverUrl.split("/");
+      if (coverUrlPartsArr !== undefined && coverUrlPartsArr.length >= 2) {
+        const coverPublicId =
+          coverUrlPartsArr.at(-2)! +
+          "/" +
+          coverUrlPartsArr.at(-1)?.split(".")[0];
+        await this.storageService.delete(coverPublicId, {});
+      }
+    }
+
+    await this.bookRepository.delete({ id: bookInDb.id });
+
+    return res.status(204).send();
   }
 }

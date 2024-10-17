@@ -1,4 +1,9 @@
-import { FileData, FileStorage, UploadSuccess } from "../../types/storage";
+import {
+  CloudinaryOptions,
+  FileData,
+  FileStorage,
+  UploadSuccess,
+} from "../../types/storage";
 import { v2 as cloudinary, ConfigOptions } from "cloudinary";
 import { Config } from "../../config/config";
 import path from "node:path";
@@ -53,12 +58,8 @@ export class CloudinaryStorage implements FileStorage {
       bookFileUrl: bookFileUploadResult.secure_url,
     };
   }
-  delete(fileName: string): void {
-    console.log(fileName);
-    throw new Error("Method not implemented.");
-  }
-  getObjectUri(fileName: string): void {
-    console.log(fileName);
-    throw new Error("Method not implemented.");
+  async delete(publicId: string, options: CloudinaryOptions): Promise<void> {
+    console.log(publicId);
+    await cloudinary.uploader.destroy(publicId, options);
   }
 }

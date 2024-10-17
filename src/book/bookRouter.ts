@@ -14,7 +14,7 @@ import { AppDataSource } from "../config/data-source";
 import { Book } from "../entity/Book";
 import { User } from "../entity/User";
 import authenticate from "../common/middlewares/authenticate";
-import { BookCreateRequest } from "../types";
+import { BookCreateRequest, DeleteBookRequest } from "../types";
 const bookRouter = express.Router();
 const cloudinaryStorage = new CloudinaryStorage();
 const bookRepository = AppDataSource.getRepository(Book);
@@ -44,14 +44,23 @@ bookRouter.post(
     },
   ]),
   createValidator,
-  asyncWrapper((req: Request, res: Response, next: NextFunction) =>
-    bookController.create(req as BookCreateRequest, res, next),
+  asyncWrapper(
+    (req: Request, res: Response, next: NextFunction) =>
+      void bookController.create(req as BookCreateRequest, res, next),
   ),
 );
 bookRouter.get(
   "/",
-  asyncWrapper((req: Request, res: Response) =>
-    bookController.getAll(req, res),
+  asyncWrapper(
+    (req: Request, res: Response) => void bookController.getAll(req, res),
+  ),
+);
+bookRouter.delete(
+  "/delete/:bookId",
+  authenticate as RequestHandler,
+  asyncWrapper(
+    (req: Request, res: Response, next: NextFunction) =>
+      void bookController.deleteById(req as DeleteBookRequest, res, next),
   ),
 );
 

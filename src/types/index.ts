@@ -19,14 +19,19 @@ export interface AuthRequest extends Request {
   };
 }
 
-export interface BookCreateRequest extends Request {
+interface SubInAuth {
+  auth: {
+    sub: string;
+  };
+}
+
+export interface BookCreateRequest extends Request, SubInAuth {
   body: {
     title: string;
     author: string;
     genre: string;
     createdBy: string;
   };
-  auth: {
-    sub: string;
-  };
 }
+
+export interface DeleteBookRequest extends Request, SubInAuth {}
